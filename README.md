@@ -3,7 +3,7 @@ JavaScript Notes: Data Structures &amp; Algorithms
 
 
 
-# ================Data Structures=================
+================Data Structures=================
 (data-structures.js)
 
 	- Arrays
@@ -11,6 +11,6 @@ JavaScript Notes: Data Structures &amp; Algorithms
 
 
 
-# ===================Algorithms===================
+===================Algorithms===================
 (algorithms.js)
 

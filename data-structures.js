@@ -1,6 +1,6 @@
 /* ============================================ARRAYS (Linear - Elements)============================================ */
 
-// Linear Collection of Elements
+// [Native to JS] Linear Collection of Elements
 // Positve: Constant access tag
 // Negative: Single continuous block of memory
 
@@ -48,7 +48,7 @@ Array.prototype.reduce();
 
 /* ============================================LINKED LISTS (Linear - Nodes)============================================ */
 
-/* Linear Collection of Nodes
+/* [Not native to JS] Linear Collection of Nodes
 Node: 	Data attribute - stored information about list
 		Next attribute - points to NEXT Node in List (*until LAST Node: NEXT = null)
 Traversal: Must traverse ENTIRE list to locate particular Node
@@ -195,16 +195,341 @@ function insertArticle(article) {
 
 /* ============================================SETS============================================ */
 
-Set: 
-
-Supported Operations:
-
-ES6 Set: Object
+// [Native to JS] 
+// Set: 
+// ES6 Set: Object
 
 /* Example #3: Sets */
+// To ensure duplicate tags are not added
+function saveArticle(articleId, tags){
+	var uniqueTags = new Set();
+
+	tags.forEach(function tag){
+		uniqueTags.add(tag);
+	});
+	
+	uniqueTags.forEach(function(tag){
+		var tagId = saveTag(tag);
+		addTagToArticle(articleId, tagId);
+	});
+}
+
+/* ============================================Linear Structures============================================ */
+
+// Queues & Stacks: Linear Data Structures
+
+
+/* 	QUEUES (FIFO)-------------------------------------------------
+
+	Queue: Lists that preserve the insertion order of an element
+		WHERE *ELEMENT #FIRST(ADDED) is #FIRST(REMOVED)*
+
+		"Task Queue" - Queue order = Execution order
+		Common Operations
+		Enqueue - Adds elements to queue (added to end or back of queue)
+		Dequeue - (Like array.pop) removes from front of queue
+		Length  - How many items in queue */
+
+function Queue(optElements){
+	if (optElements instanceof Array) {
+		this.items = optElements;
+	} else {
+		this.items = [];
+	}
+
+	this.length = this.items.length;
+}
+
+Queue.prototype.enqueue = function(item) {
+	this.length += 1;
+	return this.items.push(item);
+}
+
+Queue.prototype.dequeue = function(){
+	if (this.length > 0) {
+		this.length -= 1;
+	}
+
+	return this.items.shift();
+};
+
+// Example #4 - Queue in RESTful API
+app.get('/insert-task/:data', function(req, res, next) {
+	var data = {
+		timestamp: Data.now(),
+		payload: req.params.data
+	};
+	
+	tasks.enqueue(data);
+	next();
+});
+
+app.get('/process-task', function(req, res, next){
+	var task = tasks.dequeue();
+	service.save(task.payload);
+	next();
+});
+
+
+/* 	STACKS (LIFO) - Recency --------------------------------------
+	
+	Stacks: Lists that preserve the insertion order of an element
+			WHERE *ELEMENT #LAST(ADDED) is #FIRST(REMOVED)*     */
+
+// Example #5 - Actions Tracker
+// Track Actions so that it can be reversed if desired
+// By Pushing the Actions to a Stack!
+var actions = new Stack();
+
+function doAction(action){
+	actions.push(action);
+}
+
+function undoLastAction(){
+	var action = actions.pop();
+	action.undo();
+}
+
+// Common Operations
+// Push - Adds to top of Stack
+// Pop - Removes from top of Stack
+// Top - Returns reference to current top-item of stack
+
+// @constructor of Stack class
+// Does NOT take any parameters
+// Wraps empty array and tracks it's length
+function Stack(){
+	this.items = [];
+	this.length = this.items.length;
+}
+// @params
+Stack.prototype.push = function(item){
+	this.length += 1;
+	return this.items.push(item);
+};
+
+// @return
+Stack.protoype.pop = function() {
+	if (this.length > 0) {
+		this.length -= 1;
+	}
+
+	return this.items.pop();
+};
+
+// @return
+Stack.prototype.top = function(){
+	if(this.length > 0) {
+		return this.items[this.length - 1];
+	}
+
+	return undefined;
+};
 
 
 
+
+
+
+/* ============================================Binary Trees============================================ */
+
+/*
+"Tree": Data Structure and Type of Graph
+		- Composed of a set of (vertices) Nodes
+		- Connected by Edges
+		- Contains a Root Node
+		- i.e. HTML (tags)
+"Binary Tree": Tree with it's own rules
+		- Directed Tree/Graph
+		- 1 Node has 2 children (maximum)
+		- Value of Left child < than parent
+		- Value of Right child > than parent
+*/
+
+// Common Operations
+// 		Add: 		Inserts new Node relative to parent
+// 		Remove: 	Removes Node relative to parent along with its sub trees
+// 		Balance: 	Sorts tree for optimal searching
+// 		Find: 		Searches tree for given property
+
+function Node(data, left, right){
+	this.data = data;
+	this.left = left || null;
+	this.right = right || null;
+};
+
+// For convenience, track length of tree
+function BTree(){
+	this.root = null;
+	this.length = 0;
+};
+
+// Add Node: *Keep looking down the tree until we encounter leaf Node to add a new Node
+BTree.prototype.add = function(data) {
+	var node = new Node(data);
+	this.length += 1;
+
+	if (this.root === null) {
+		return this.root = node;
+	}
+
+	var currentNode = this.root;
+	var parentNode = null;
+
+	while (currentNode) {
+		parentNode = currentNode;
+
+		if (data.id < currentNode.data.id) {
+			currentNode = currentNode.left;
+
+			if(currentNode === null) {
+				return parentNode.left = node;
+			}
+		} else {
+			currentNode = currentNode.right;
+
+			if (currentNode === null) {
+				return parentNode.right = node;
+			}
+		}
+	}
+};
+
+// Balance (example)
+var articlesArray = getArticles();
+var articlesTree = new Btree();
+
+articlesArray.forEach(function(article){
+	articlesTree.add(article);
+});
+
+app.get('/article/:articleId', function(req, res){
+	var articleId = req.params.articleId;
+	var article = articlesTree.find(articleId);
+	res.json(article);
+});
+
+
+
+
+
+/* ============================================Graphs============================================ */
+		
+/* GRAPHS (cyclic)
+		- Composed of a set of (vertices) Nodes
+		- Connected by Edges and Loops 
+		- Edges that go to and from Node in either direction
+				- **Order is irrelevant (b/c of edges!) */
+// AddNode: Adds Single Node to Graph (*Node is not actualy connected to anything in graph at this point)
+// AddEdge: Connects two Nodes
+
+var Node = function(data){
+	this.data = data;
+	this.neighbors = [];
+};
+
+var Graph = function(){
+	this.nodes = []
+	this.length = 0;
+};
+
+// addNode: Provide interface to use to add Nodes to Graph
+Graph.prototype.addNode = function(data){
+	this.nodes.push(node);
+	return ++this.length;
+};
+
+// addEdge: When user adds a cycle to the graph,
+// 		can only have one edge link/connection between the same set of Nodes
+Graph.prototype.addEdge = function(nodeA, nodeB){
+	var nA = this.nodes.filter(function(node){
+		return node.data.id === nodeA;
+	});
+
+	var mB this.nodes.filter(function(node){
+		return node.data.id === nodeB;
+	});
+
+	if (nA.length && nB.length) {
+		nA[0].neighbors.push(nB[0]);
+		nB[0].neighbors.push(nA[0]);
+	}
+};
+
+/* Example #6: Graphs
+	Objective
+	- To determine which nodes contain articles that have not been read (see property: readBy)
+	- And that the user will probably read
+
+	Big Picture Solution
+	- Generate Graph based on the data
+	- Find an article the user and another 1+ users have also read
+	- Create our own assumptions of probable articles that will be read */
+
+// Create Empty Graph:
+var g = new Graph(); // will contain nodes of article objects
+
+// Add Nodes (with the data) to Graph
+g.addNote(new Node({
+	id: 1,
+	articleId: 108,
+	readBy: [{userId: 15}]
+}));
+
+g.addNote(new Node({
+	id: 2,
+	articleId: 505,
+	readBy: [{userId: 16}]
+}));
+
+g.addNote(new Node({
+	id: 3,
+	articleId: 957,
+	readBy: [{userId: 15}]
+}));
+
+g.addNote(new Node({
+	id: 4,
+	articleId: 984,
+	readBy: [{userId: 16}]
+}));
+
+// Add Edges to connect
+// Remember - Graph.prototype.addEdge = function(nodeA, nodeB)
+g.addEdge(1, 2);
+g.addEdge(1, 3);
+g.addEdge(2, 4);
+g.addEdge(3, 2);
+g.addEdge(4, 1);
+
+function rec(userId) {
+	// Assumption #1. Find articles that this.user and other user(s) HAVE read
+	var articles = g.nodes.filter(function(node){
+		return node.data.readBy.length > 1 &&
+			node.data.readBy.filter(function(user){
+				return user.userId === userId;
+			}).length > 0;
+	});
+
+	if (articles.length === 0) {
+		retrun g.nodes[0].articleId;
+	}
+
+	// 2. Find neighbor node for this.user that has NOT read
+	var recs = articles.map(function(article){
+		var nodes = article.neighbors.filter(function(node){
+			return node.data.readBy.filter(function(user){
+				return user.userId === userId;
+			}).length === 0;
+		});
+
+	return node.length > 0 ? nodes[0].data : [];
+	});
+
+	return recs;
+}
+
+var recs = recd(15);
 
 
 
