@@ -502,7 +502,7 @@ g.addEdge(2, 4);
 g.addEdge(3, 2);
 g.addEdge(4, 1);
 
-function rec(userId) {
+function recd(userId) {
 	// Assumption #1. Find articles that this.user and other user(s) HAVE read
 	var articles = g.nodes.filter(function(node){
 		return node.data.readBy.length > 1 &&
@@ -512,7 +512,7 @@ function rec(userId) {
 	});
 
 	if (articles.length === 0) {
-		retrun g.nodes[0].articleId;
+		return g.nodes[0].articleId;
 	}
 
 	// 2. Find neighbor node for this.user that has NOT read
